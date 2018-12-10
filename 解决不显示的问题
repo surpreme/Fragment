@@ -1,0 +1,125 @@
+对前台进入后台后再次恢复前台出现所有不显示的bug进行了处理 
+先来看原来的代码
+ @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (outState!=null){
+            FragmentTransaction transaction=fragmentManager.beginTransaction ();
+            if (messageFragment!=null){
+                transaction.hide ( messageFragment );
+            }if (newsFragment!=null){
+                transaction.hide ( newsFragment );
+            }if (settingFragment!=null){
+                transaction.hide ( settingFragment );
+            }
+            transaction.commit ();
+
+//            setTabSelection(0);
+        }
+
+        super.onSaveInstanceState ( outState );
+    }
+//
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+//        FragmentTransaction transaction=fragmentManager.beginTransaction ();
+//        hideFragment(transaction);
+//        transaction.commit ();
+//        setTabSelection(0);
+        FragmentTransaction transaction=fragmentManager.beginTransaction ();
+        if (savedInstanceState!=null){
+            //隐藏碎片 避免重叠
+
+            if (messageFragment!=null){
+                transaction.hide ( messageFragment );
+
+                }if (newsFragment!=null){
+                transaction.hide ( newsFragment );
+
+            }if (settingFragment!=null) {
+                transaction.hide ( settingFragment );
+            }
+//            as ( 0 );
+
+            transaction.commit ();
+
+
+
+        }
+
+
+
+        super.onRestoreInstanceState ( savedInstanceState );
+    }
+在进行数据恢复的时候选择了隐藏所有fragment 所以活动销毁或进入后台都会再次启用数据恢复
+我选择在activity生命周期进行显示的周期进行了一个判断 如果缓存不为空则进行选中
+下面来看我修改的东西
+添加一个全局对象 用来判断数据缓存是否为空 因为第一次显示你如果不判断直接造成重叠
+ private Bundle bundle;
+  @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate ( savedInstanceState );
+        this.bundle=savedInstanceState;
+        }
+
+   你可以根据需要选择恢复的tab项 这里我选择恢复第一项 可以写一个布尔值 当选中哪一项放到缓存中 判断是哪一项保存住了 然后进行恢复
+
+    @Override
+    protected void onResume() {
+        super.onResume ();
+        if (bundle!=null){
+            setTabSelection ( 0 );
+        }
+
+    }
+    这里重写保存数据和恢复数据 选中放到了activity显示的地方 这样可以在不同的生命周期进行恢复 解决了无法提交两次的问题 在数据恢复的时候我添加了恢复fragment1
+    但不显示 因为前面已经把所有的framgent进行了隐藏进行了提交 再次提交已经解决不了问题了
+      @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (outState!=null){
+            FragmentTransaction transaction=fragmentManager.beginTransaction ();
+            if (messageFragment!=null){
+                transaction.hide ( messageFragment );
+            }if (newsFragment!=null){
+                transaction.hide ( newsFragment );
+            }if (settingFragment!=null){
+                transaction.hide ( settingFragment );
+            }
+            transaction.commit ();
+
+//            setTabSelection(0);
+        }
+
+        super.onSaveInstanceState ( outState );
+    }
+//
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+//        FragmentTransaction transaction=fragmentManager.beginTransaction ();
+//        hideFragment(transaction);
+//        transaction.commit ();
+//        setTabSelection(0);
+        FragmentTransaction transaction=fragmentManager.beginTransaction ();
+        if (savedInstanceState!=null){
+            //隐藏碎片 避免重叠
+
+            if (messageFragment!=null){
+                transaction.hide ( messageFragment );
+
+                }if (newsFragment!=null){
+                transaction.hide ( newsFragment );
+
+            }if (settingFragment!=null) {
+                transaction.hide ( settingFragment );
+            }
+//            as ( 0 );
+
+            transaction.commit ();
+
+
+
+        }
+
+
+
+        super.onRestoreInstanceState ( savedInstanceState );
+    }

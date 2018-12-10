@@ -1,10 +1,10 @@
 package com.liziyang.dall.gugedemofragment;
 
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
@@ -24,17 +24,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView news_text;
     private TextView setting_text;
     private FragmentManager fragmentManager;
+    private Bundle bundle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate ( savedInstanceState );
+        this.bundle=savedInstanceState;
 //        设置无toolbar
         requestWindowFeature ( Window.FEATURE_NO_TITLE );
         setContentView ( R.layout.activity_main );
-        initViews ();
-        fragmentManager = getSupportFragmentManager ();
-        //设置选中
-        setTabSelection(0);
+//        if(savedInstanceState!=null){
+////            messageFragment= (MessageFragment) getSupportFragmentManager ().findFragmentByTag ( MessageFragment.class.getName () );
+////            settingFragment= (SettingFragment) getSupportFragmentManager ().findFragmentByTag ( SettingFragment.class.getName () );
+////            newsFragment= (NewsFragment) getSupportFragmentManager ().findFragmentByTag ( NewsFragment.class.getName () );
+////            getSupportFragmentManager ().beginTransaction ().show ( messageFragment ).hide ( settingFragment ).hide ( newsFragment ).commit ();
+//        }else {
+            initViews ();
+            fragmentManager = getSupportFragmentManager ();
+            //设置选中
+            setTabSelection(0);
+
+//        }
+//        initViews ();
+//        fragmentManager = getSupportFragmentManager ();
+//        //设置选中
+//        setTabSelection(0);
     }
 
 
@@ -51,6 +65,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         messageLayout.setOnClickListener ( this );
         newsLayout.setOnClickListener ( this );
         settingLayout.setOnClickListener ( this );
+    }
+
+    /**
+     * 你可以根据需要选择恢复的tab项 这里我选择恢复第一项
+     */
+    @Override
+    protected void onResume() {
+        super.onResume ();
+        if (bundle!=null){
+            setTabSelection ( 0 );
+        }
+
     }
 
     /**
@@ -158,18 +184,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        FragmentTransaction transaction=fragmentManager.beginTransaction ();
-        hideFragment(transaction);
-        transaction.commit ();
+        if (outState!=null){
+            FragmentTransaction transaction=fragmentManager.beginTransaction ();
+            if (messageFragment!=null){
+                transaction.hide ( messageFragment );
+            }if (newsFragment!=null){
+                transaction.hide ( newsFragment );
+            }if (settingFragment!=null){
+                transaction.hide ( settingFragment );
+            }
+            transaction.commit ();
+
+//            setTabSelection(0);
+        }
+
         super.onSaveInstanceState ( outState );
     }
-
+//
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
+//        FragmentTransaction transaction=fragmentManager.beginTransaction ();
+//        hideFragment(transaction);
+//        transaction.commit ();
+//        setTabSelection(0);
         FragmentTransaction transaction=fragmentManager.beginTransaction ();
-        hideFragment(transaction);
-        transaction.commit ();
-        setTabSelection(0);
+        if (savedInstanceState!=null){
+            //隐藏碎片 避免重叠
+
+            if (messageFragment!=null){
+                transaction.hide ( messageFragment );
+
+                }if (newsFragment!=null){
+                transaction.hide ( newsFragment );
+
+            }if (settingFragment!=null) {
+                transaction.hide ( settingFragment );
+            }
+//            as ( 0 );
+
+            transaction.commit ();
+
+
+
+        }
+
+
 
         super.onRestoreInstanceState ( savedInstanceState );
     }
